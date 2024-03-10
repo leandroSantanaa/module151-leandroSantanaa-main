@@ -11,7 +11,7 @@ class MonumentDBManager
         $this->connexion = connexion::getInstance();
     }
 
-    public function ajouterMonument($nom, $localite, $coordonneeX, $coordonneeY, $username_user)
+    public function ajouterMonument($nom, $localite, $coordonnesX, $coordonnesY, $username_user)
     {
         $test = "";
         try {
@@ -20,15 +20,27 @@ class MonumentDBManager
             $query_pays = connexion::getInstance()->selectSingleQuery("SELECT pk_pays FROM t_pays WHERE nom = :nom", $param);
 
             $fk_Pays = $query_pays['pk_pays'];
-            $Session_username = $_SESSION["username"];
+            $Session_username = $username_user;
             $query_user = connexion::getInstance()->selectSingleQuery("SELECT pk_user FROM t_user WHERE username = :username_user", array(":username_user" => $Session_username));
             $fk_user = $query_user['pk_user'];
 
-            $array = array(":nom" => $nom, ":localite" => $localite, ":coordonneesX" => $coordonneeX, ":coordonneesY" => $coordonneeY, ":fk_Pays" => $fk_Pays, ":fk_user" => $fk_user);
-            $test = connexion::getInstance()->executeQuery("INSERT INTO `monumentheritage`.`t_monument` (`nom`, `localite`, `CoordonneesX`, `CoordonneesY`, `FK_user`, `FK_pays`) VALUES (:nom, :localite, :coordonneesX, :coordonneesY, :fk_user, :fk_Pays)", $array);
+            $array = array(
+                ":nom" => $nom,
+                ":localite" => $localite,
+                ":fk_user" => $fk_user,
+                ":fk_pays" => $fk_Pays,
+                ":coordonnesY" => $coordonnesY,
+                ":coordonnesX" => $coordonnesX
+            );
 
-            if ($test) {
-                // http_response_code(200);
+            // Exécute la requête d'insertion
+            $query = "INSERT INTO `monumentheritage`.`t_monument` 
+                      (`nom`, `localite`, `fk_user`, `fk_pays`, `coordonnesY`, `coordonnesX`) 
+                      VALUES (:nom, :localite, :fk_user, :fk_pays, :coordonnesY, :coordonnesX)";
+            connexion::getInstance()->executeQuery($query, $array);
+
+            if ($query) {
+                http_response_code(200);
                 $result = json_encode(array("IsOk" => true, "message" => "ajout monument OK"));
                 $test = connexion::getInstance()->commitTransaction();
             } else {
@@ -103,20 +115,33 @@ class MonumentDBManager
     {
         $result = "";
         try {
-            $test = connexion::getInstance()->selectQuery("SELECT * FROM t_monument", null);
-            echo json_encode($test);
-            if ($test) {
-                $result = json_encode(array("IsOk" => true, "message" => "modifier monument OK", "data" => $test));
+            $test = connexion::getInstance()->selectQuery("SELECT nom, localite FROM t_monument", null);
+            if ($test !== false) {
+                $data = ""; // Initialisez une chaîne vide pour stocker les données HTML
+                foreach ($test as $row) {
+                    // Récupérez les valeurs spécifiques de chaque ligne
+                    $nom = $row['nom'];
+                    $localite = $row['localite'];
+                    // Concaténez les valeurs dans la chaîne HTML
+                    $data .= '<div class="text-holder" id="monumentInfo">';
+                    $data .= '<p>Nom: ' . $nom . '</p>';
+                    $data .= '<p>Localite: ' . $localite . '</p>';
+                    $data .= '</div><br>';
+                }
+                // Encodage JSON à l'extérieur de la boucle foreach
+                $result = json_encode(array("IsOk" => true, "message" => "Récupération des monuments réussie", "data" => $data));
             } else {
-                $result = json_encode(array("IsOk" => false, "message" => "problème avec la récupération de monument"), JSON_UNESCAPED_UNICODE);
-
+                $result = json_encode(array("IsOk" => false, "message" => "Aucun monument trouvé"), JSON_UNESCAPED_UNICODE);
             }
         } catch (PDOException $e) {
-            echo "Erreur lors de la récupération des monuments : ";
-            return array();
+            echo "Erreur lors de la récupération des monuments : " . $e->getMessage();
+            // Gérer l'erreur PDO ici
+            $result = json_encode(array("IsOk" => false, "message" => "Erreur PDO lors de la récupération des monuments"), JSON_UNESCAPED_UNICODE);
         }
         return $result;
     }
+    
+    
     public function getMonumentById($nom)
     {
         $result = "";

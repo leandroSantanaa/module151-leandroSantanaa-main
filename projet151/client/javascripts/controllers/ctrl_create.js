@@ -8,6 +8,9 @@ $(document).ready(function () {
 	$("#btnCreer").click(function (event) {
 		event.preventDefault(); // pour afficher les echos / permission
 		console.log("Button connexion presser");
+		createValueUsername = $("#new_username").val();
+		createValuePassword = $("#new_password").val();
+
 		CreateUser(createValueUsername, createValuePassword);
 	});
 })
@@ -22,12 +25,16 @@ function CreateUser(username, password) {
 		// Récupération des propriétés de la réponse JSON
 		var success = response.IsOk;
 		var message = response.message;
-		var userLogin = response["data"]["Username"];
-		var userPK = response["data"]["pk_user"];
+		var userLogin = response["Data"]["0"];
+		var userPK = response["Data"]["1"];
+		console.log(userLogin);
+		console.log(userPK);
 		if (success) {
-			alert("Utilisateur connecté avec succès : " + userLogin);
+			alert("Utilisateur crée avec succès : " + userLogin);
 			sessionStorage.setItem('username', userLogin);
 			sessionStorage.setItem('PKuser', userPK);
+			window.location.href = 'index.html';
+
 		} else {
 			alert("Vous n'avez pas pu vous connecter : " + message);
 		}

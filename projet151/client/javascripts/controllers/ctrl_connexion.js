@@ -32,6 +32,8 @@ function loginUser(username, password) {
 			alert("Utilisateur connecté avec succès : " + userLogin);
 			sessionStorage.setItem('username', userLogin);
 			sessionStorage.setItem('PKuser', userPK);
+			window.location.href = 'indexLogin.html';
+
 		} else {
 			alert("Vous n'avez pas pu vous connecter : " + message);
 		}

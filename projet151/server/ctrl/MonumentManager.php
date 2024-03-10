@@ -13,8 +13,7 @@ class MonumentManager
   public function getMonumentJSON()
   {
     $monuments = $this->manager->getMonuments();
-    $result = json_decode($monuments, true);
-    return $result["data"];
+    return $monuments;
   }
   public function getMonumentsJSON($monument)
   {
@@ -25,8 +24,7 @@ class MonumentManager
   public function AjouterMonumentJSON($nom, $localite, $coordonneeX, $coordonneeY, $username)
   {
     $monument = $this->manager->ajouterMonument($nom, $localite, $coordonneeX, $coordonneeY, $username);
-    $message = json_decode($monument, true);
-    return $message["message"];
+    return $monument;
   }
   public function modifierMonumentJSON($nom, $localite, $coordonneeX, $coordonneeY)
   {

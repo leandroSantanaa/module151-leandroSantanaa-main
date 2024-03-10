@@ -16,7 +16,7 @@ include_once('ctrl/LoginManager.php');
                     }
                 case "disconnect"; {
                         $login = new LoginManager();
-                        echo $login->disconnct();
+                        echo $login->disconnect();
                         break;
                     }
                 case "login"; {

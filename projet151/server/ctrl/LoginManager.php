@@ -27,14 +27,23 @@ class LoginManager
         }
         return $login;
     }
-    public function disconnct()
+    public function disconnect()
     {
+        $result = "";
         if (isset($_SESSION["username"])) {
             $this->session->destroy();
-            echo ("utilisateur déconnecter");
+            http_response_code(200);
+
+            $result = json_encode(array("IsOk" => true, "message" => "Déconnexion OK"));
+
         } else {
-            echo ("la session n'existe pas donc l'utilisateur n'as pas été déconnecté");
+            http_response_code(500);
+
+            $result = json_encode(array("IsOk" => false, "message" => "Déconnexion Pas OK"));
+
         }
+        return $result;
+
     }
 }
 

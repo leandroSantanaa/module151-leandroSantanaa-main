@@ -13,26 +13,32 @@ class PaysDBManager
     }
 
     public function ajouterPays($nom_pays)
-    {
-        try {
-            $test = connexion::getInstance()->startTransaction();
+{
+    $result = "";
+    try {
+        $test = connexion::getInstance()->startTransaction();
 
-            $param = array(':nom_pays' => $nom_pays);
-            $test = connexion::getInstance()->executeQuery('INSERT INTO pays (nom_pays) VALUES (:nom_pays)', $nom_pays);
-            if ($test == 1) {
-                echo json_encode($test);
-                $test = connexion::getInstance()->c();
+        $param = array(':nom_pays' => $nom_pays);
+        $query = connexion::getInstance()->executeQuery("INSERT INTO `monumentheritage`.`t_pays` (`nom`) VALUES (:nom_pays)", $param);
 
-            } else {
-                echo 'Erreur lors de l' . "ajout du pays";
-            }
-        } catch (PDOException $e) {
-            // En cas d'erreur, afficher un message d'erreur et retourner false
-            echo "Erreur lors de l'ajout du pays : " . $e->getMessage();
+        if ($query == 1) {
+            http_response_code(200);
+            $result = json_encode(array("IsOk" => true, "message" => "Ajout du pays réussi"));
+            $test = connexion::getInstance()->commitTransaction();
+        } else {
+            http_response_code(200);
+            $result = json_encode(array("IsOk" => false, "message" => "Erreur lors de l'ajout du pays"));
             $test = connexion::getInstance()->rollbackTransaction();
-
         }
+    } catch (PDOException $e) {
+        // En cas d'erreur, afficher un message d'erreur et retourner false
+        echo "Erreur lors de l'ajout du pays : " . $e->getMessage();
+        $test = connexion::getInstance()->rollbackTransaction();
     }
+    return $result;
+}
+
+    
     public function récupérerTousPays()
     {
         try {

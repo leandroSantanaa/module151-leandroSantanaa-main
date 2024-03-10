@@ -16,13 +16,13 @@ class LoginDBManager
             $test = Connexion::getInstance()->startTransaction();
             $hashedPassword = $this->hashPassword($password);
             if ($hashedPassword != null) {
-                // Utilisez la syntaxe correcte pour accéder aux valeurs de l'objet array
                 $param = array(':username' => $username, ':password' => $hashedPassword);
                 $Query = connexion::getInstance()->executeQuery('INSERT INTO t_user (username, password) VALUES (:username, :password)', $param);
-                if ($Query == 1) {
+                if ($Query) {
+                    $a =array($username, $password);
                     http_response_code(200);
+                    $result = json_encode(array("IsOk" => true, "message" => "Création d'utilisateur OK", "Data" => $a));
                     $test = Connexion::getInstance()->commitTransaction();
-                    $result = json_encode(array("IsOk" => true, "message" => "Création d'utilisateur OK", "data" => $Query));
                 }
             } else {
                 http_response_code(500);
